@@ -1,9 +1,23 @@
 .sign-up-container{
+    /* background-color: rgb(82, 178, 223); */
+    /* background-color: rgb(160, 82, 223); */
+    /* background-color: rgb(219, 107, 230); */
     background-color: rgb(12, 79, 110);
+    /* background-color: rgb(251, 255, 0); */
+    /* background-color: rgb(251, 255, 0); */
     width: 100%;
     height: 100% !important;
     display: flex;
     align-items: center;
     justify-content: center;
     position: absolute;
+}
+.whiteText{
+    color: white
+}
+.hr-line{
+    background-color: rgb(253, 252, 252);
+}
+.link{
+    color: rgb(197, 195, 199)
 }
