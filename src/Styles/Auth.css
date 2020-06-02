@@ -1,4 +1,4 @@
-.sign-up-container{
+.sign-up-container, .log-in-container{
     /* background-color: rgb(82, 178, 223); */
     /* background-color: rgb(160, 82, 223); */
     /* background-color: rgb(219, 107, 230); */
@@ -19,5 +19,5 @@
     background-color: rgb(253, 252, 252);
 }
 .link{
-    color: rgb(197, 195, 199)
+    color: rgb(106, 197, 209)
 }

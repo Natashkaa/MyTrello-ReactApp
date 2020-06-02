@@ -1,11 +1,9 @@
 import { connect } from 'react-redux'
 import { changeInput } from '../Actions/ActionCreators'
-import page from '../Pages/SignUp'
+import page from '../Pages/LogIn'
 
 function mapStateToProps(state){
     return {
-        fname: state.fname,
-        lname: state.lname,
         email: state.email,
         password: state.password
     }
@@ -18,6 +16,6 @@ function mapDispatchToProps(dispatch){
 }
 
 let func = connect( mapStateToProps, mapDispatchToProps);
-const SignUpPage = func(page);
+const LogInPage = func(page);
 
-export default SignUpPage;
+export default LogInPage;

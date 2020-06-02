@@ -1,5 +1,6 @@
 import React from 'react'
 import '../Styles/Auth.css';
+import { Link } from "react-router-dom"
 
 function SignUp(props){
     return (
@@ -36,16 +37,17 @@ function SignUp(props){
                         value={props.email}
                         onChange={e => props.changeInput(e.target.value, e.target.name)}/>
             </div>
-            <div className="form-group form-check">
+            <div className="form-group">
                 <label className="form-check-label whiteText" htmlFor="password">Password</label>
                 <input type="password" className="form-control" id="password"
                        name="password"
-                       value={props.password}/>
+                       value={props.password}
+                       onChange={e => props.changeInput(e.target.value, e.target.name)}/>
             </div>
             <button type="submit" className="btn btn-info">Continue</button>
             <hr className="hr-line"/>
             <div className="form-group">
-                <a href="#" className="link">Already have an account? Log In</a>
+                <Link className="link" to="/logIn"><span>Already have an account? Log In</span></Link>
             </div>
         </form>
     </div>

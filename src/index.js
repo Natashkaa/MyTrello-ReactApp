@@ -7,6 +7,8 @@ import { createStore } from 'redux';
 import { Provider } from 'react-redux';
 import  reducer from './Reducers/AuthReducer'
 
+import { Router } from "react-router-dom"
+import {createBrowserHistory} from 'history'
 
 let state = {
   fname: "",
@@ -15,11 +17,14 @@ let state = {
   password: ""
 }
 let store = createStore(reducer, state);
+let history = createBrowserHistory();
 
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
-      <App/>
+      <Router history={history}>
+        <App/>
+      </Router>
     </Provider>
   </React.StrictMode>,
   document.getElementById('root')
