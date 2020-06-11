@@ -14,7 +14,8 @@ let state = {
   fname: "",
   sname: "",
   email: "",
-  password: ""
+  password: "",
+  authCheck: true
 }
 let store = createStore(reducer, state);
 let history = createBrowserHistory();

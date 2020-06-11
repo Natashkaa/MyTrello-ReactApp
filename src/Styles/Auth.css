@@ -1,3 +1,19 @@
+@media (min-width: 1000px){
+    form{
+        width: 20%
+    }
+}
+
+@media (min-width: 700px) and (max-width: 1000px) {
+    form{
+        width: 50%
+    }
+}
+@media (min-width: 100px) and (max-width: 800px) {
+    form{
+        width: 60%
+    }
+}
 .sign-up-container, .log-in-container{
     /* background-color: rgb(82, 178, 223); */
     /* background-color: rgb(160, 82, 223); */
@@ -20,4 +36,8 @@
 }
 .link{
     color: rgb(106, 197, 209)
+}
+.errorBlockShow{
+    margin: 10px 0;
+    display: block;
 }
