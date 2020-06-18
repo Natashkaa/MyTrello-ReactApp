@@ -91,7 +91,7 @@ class Signup extends React.Component{
                     <div className="form-group">
                         <Link className="link" to="/logIn"><span>Already have an account? Log In</span></Link>
                     </div>
-                    {!this.props.authCheck ? (
+                    {this.props.authCheck ? (
                                             <div className="alert alert-danger errorBlockShow">{this.props.errorMessage}</div>
                                         ) : null } 
                 </form>
