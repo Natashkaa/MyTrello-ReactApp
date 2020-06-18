@@ -12,6 +12,7 @@ import {
 
 import LogIn from './Containers/logInContainer'
 import SignUp from './Containers/signUpContainer'
+import MainPage from './Containers/mainContainer'
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
       <Switch>
         <Route path='/logIn' component={LogIn}/>
         <Route path='/signUp' component={SignUp}/>
+        <Route path='/main' component={MainPage}/>
       </Switch>
       {/* <SignInContainer/> */}
       {/* <header className="App-header">

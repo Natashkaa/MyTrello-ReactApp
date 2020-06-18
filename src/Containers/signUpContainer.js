@@ -1,19 +1,19 @@
 import { connect } from 'react-redux'
-import { changeInput } from '../Actions/ActionCreators'
+import { changeInput, logInSuccess, logInError } from '../Actions/ActionCreators'
 import page from '../Pages/SignUp'
 
 function mapStateToProps(state){
     return {
-        fname: state.fname,
-        lname: state.lname,
-        email: state.email,
-        password: state.password
+        authCheck: state.authCheck,
+        errorMessage: state.auth.errorMessage
     }
 }
 
 function mapDispatchToProps(dispatch){
     return{
-        changeInput: (value, name) => dispatch(changeInput(value, name))
+        changeInput: (value, name) => dispatch(changeInput(value, name)),
+        logInSuccess: (user, token) => dispatch(logInSuccess(user, token)),
+        logInError: (error) => dispatch(logInError(error))
     }
 }
 

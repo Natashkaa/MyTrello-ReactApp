@@ -3,21 +3,29 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
-import { createStore } from 'redux';
+import { createStore, combineReducers } from 'redux';
 import { Provider } from 'react-redux';
-import  reducer from './Reducers/AuthReducer'
+import  authReducer from './Reducers/AuthReducer'
+
 
 import { Router } from "react-router-dom"
 import {createBrowserHistory} from 'history'
 
 let state = {
-  fname: "",
-  sname: "",
-  email: "",
-  password: "",
-  authCheck: true
+  auth: {
+    user: null,
+    email: "",
+    password: "",
+    authCheck: true,
+    errorMessage: ""
+  }
 }
-let store = createStore(reducer, state);
+
+
+
+let rootReducer = combineReducers({auth: authReducer});
+
+let store = createStore(rootReducer, state, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
 let history = createBrowserHistory();
 
 ReactDOM.render(

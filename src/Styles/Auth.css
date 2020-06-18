@@ -41,3 +41,12 @@
     margin: 10px 0;
     display: block;
 }
+.errorBlockHide{
+    display: none;
+}
+.spinner-hide{
+    display: none
+}
+.spinner-show{
+    display: block
+}
