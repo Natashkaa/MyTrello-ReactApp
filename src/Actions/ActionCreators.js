@@ -21,9 +21,26 @@ export function logInError(error){
         error: error
     }
 }
+export function logOut(){
+    return{
+        type: types.LOG_OUT
+    }
+}
 export function updateUserInState(user){
     return{
-        type: types.Update_User_In_State,
+        type: types.UPDATE_USER_IN_STATE,
         user: user
+    }
+}
+export function updateTasksInState(tasks){
+    return{
+        type: types.UPDATE_TASKS_IN_STATE,
+        tasks: tasks
+    }
+}
+export function addTask(task){
+    return{
+        type: types.ADD_TASK,
+        task: task
     }
 }

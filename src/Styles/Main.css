@@ -1,3 +1,59 @@
+@media (min-width: 1000px){
+    form{
+        width: 20%;
+        height: 100%
+    }
+    .userIcon, .exitIcon{
+        width: 50px;
+        height: 50px;
+    }
+    .newTaskRow{
+        height: 50%
+    }
+    .allTasksRow{
+        height: 50%
+    }
+}
+@media (min-width: 700px) and (max-width: 1000px) {
+    form{
+        width: 50%;
+        height: 100%
+    }
+    .userCol{
+        height: 10%;
+        display: flex;
+    }
+    .userIcon, .exitIcon{
+        width: 50px;
+        height: 50px;
+    }
+    .newTaskRow{
+        height: 40%
+    }
+    .allTasksRow{
+        height: 60%
+    }
+}
+@media (min-width: 100px) and (max-width: 700px) {
+    form{
+        width: 70%;
+    }
+    .userCol{
+        height: 100px;
+        display: flex
+    }
+    .userIcon, .exitIcon{
+        width: 50px;
+        height: 50px;
+    }
+    .newTaskRow{
+        height: 30%
+    }
+    .allTasksRow{
+        height: 70%
+    }
+}
+
 .mainPage-container{
     background-color: rgb(12, 79, 110); 
     width: 100%;
@@ -37,7 +93,7 @@
 
 .mainRow{
     width: 100%;
-    height: 90%;
+    height: 93%;
     margin: 0;
 }
 .userCol{
@@ -52,8 +108,6 @@
     justify-content: center;
 }
 .userIcon, .exitIcon{
-    width: 60%;
-    height: 60%;
     background-size: contain;
     background-repeat: no-repeat;
 }
@@ -64,15 +118,89 @@
     justify-content: center;
 }
 .exitIcon{
-    width: 30%;
-    height: 30%;
     background-size: contain;
     background-repeat: no-repeat;
 }
 
+.newTaskRow{
+    width: 100% !important;
+}
+.newTaskForm{
+    border-radius: 20px;
+    padding: 10px;
+    background-color: gainsboro;
+    box-shadow: 0 0 10px rgb(109, 109, 109);
+}
+
+.allTasksRow{
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    border-top: 1px solid rgba(19, 96, 131, 0.568); 
+}
+.taskItem{
+    padding: 10px
+}
+.card{
+    width: 300px
+}
+.card-header{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.card-footer{
+    height: 50px;
+    display: flex;
+    align-items: center;
+    /* justify-content: space-evenly; */
+    justify-content: flex-end;
+    /* justify-content: space-between; */
+}
+.priorityColor{
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: inline-block;
+}
+.date{
+    display:inline-block;
+    height: 100%;
+    margin-left: 15px;
+    color: gray;
+    font-size: 12px;
+}
+.task-btn-icon{
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 30px;
+    height: 30px;
+}
+/* .priorityList{
+    width: 90%;
+} */
+.redOption{
+    width: 20px;
+    height: 20px;
+    background-color: rgb(253, 112, 112);
+}
+.selectItemColor{
+    background-color: khaki;
+}
+
 .footerRow{
     width: 100%;
-    height: 10%;
+    height: 7%;
     margin: 0;
-    background-color: springgreen;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
 }
+.socialIcon{
+    width: 20px;
+    height: 20px;
+    margin: 10px
+}
+
+

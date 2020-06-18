@@ -17,7 +17,8 @@ let state = {
     email: "",
     password: "",
     authCheck: true,
-    errorMessage: ""
+    errorMessage: "",
+    tasks: []
   }
 }
 

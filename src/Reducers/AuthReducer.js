@@ -22,52 +22,38 @@ const reducer = (state = {}, action) => {
                 authCheck: false,
                 errorMessage: action.error
             }
-        case type.Update_User_In_State:
+        case type.LOG_OUT:
+            window.localStorage.removeItem("mytrellocredentials");
+            window.localStorage.removeItem("currentUserId")
+            return{
+                ...state,
+                user: null,
+                authCheck: true,
+                errorMessage: null
+            }
+        case type.UPDATE_USER_IN_STATE:
             return { 
                 ...state,
                 user: action.user
+            }
+        case type.UPDATE_TASKS_IN_STATE:
+            return { 
+                ...state,
+                tasks: action.tasks
+            }
+        case type.UPDATE_TASKS_IN_STATE:
+            return { 
+                ...state,
+                tasks: action.tasks
+            }
+        case type.UPDATE_TASKS_IN_STATE:
+            return { 
+                ...state,
+                task: action.task
             }
         default:
             return state;
     }
 }
-
-// async function log_in(email, password){
-//     let url = "http://localhost:5000/api/authenticate/auth";
-//     let credentials = {
-//         'User_Email': email,
-//         'User_Password': password
-//     }
-
-//     await fetch(url, { 
-//         method: 'POST',
-//         body: JSON.stringify(credentials),
-//         headers: {
-//             'Content-Type':'application/json'
-//         }
-//     }).then(response => {
-//         if(!response.ok){
-//             response.json().then(txt => {
-//                 //error_block.innerText = txt.message;
-//                 return txt;
-//             });
-//         }
-//         else{
-//             response
-//             .json()
-//                 .then(x => {
-//                     window.localStorage.setItem('mytrellocredentials',x.data.token);
-//                     return x;
-//                     //error_block.innerHTML = `Welcome, ${x.data.user_FirstName} ${x.data.user_LastName}`;
-//                     // setTimeout(function() {
-//                     //     window.location.href = 'categories.html';
-//                     // }, 3000);
-//                 });
-//         }
-//     })
-//     .catch(err => {
-//         //error_block.innerHTML = 'Unknown error. Failed to connect to service';
-//     })
-// }
 
 export default reducer;
