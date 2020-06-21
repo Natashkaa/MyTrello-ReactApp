@@ -46,7 +46,7 @@ class Signup extends React.Component{
     render(){
         return (
             <div className="sign-up-container">
-                <form onSubmit={this.handleSubmit}>
+                <form onSubmit={this.handleSubmit} className="auth-form">
                     <div className="form-group">
                         <label htmlFor="User_FirstName" className="whiteText">First Name</label>
                         <input  type="text"

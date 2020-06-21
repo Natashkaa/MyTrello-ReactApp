@@ -40,7 +40,7 @@ function LogIn (props){
 
     return (
         <div className="log-in-container">
-            <form>
+            <form className="auth-form">
                 <div className="form-group">
                     <label htmlFor="email" className="whiteText">Email address</label>
                     <input  type="text"

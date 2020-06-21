@@ -1,5 +1,5 @@
 import { connect } from 'react-redux'
-import { changeInput, updateUserInState, updateTasksInState, addTask, logOut } from '../Actions/ActionCreators'
+import { changeInput, updateUserInState, updateTasksInState, addTask, deleteTask, logOut } from '../Actions/ActionCreators'
 import page from '../Pages/Main'
 
 function mapStateToProps(state){
@@ -15,6 +15,7 @@ function mapDispatchToProps(dispatch){
         updateUserInState: (user) => dispatch(updateUserInState(user)),
         updateTasksInState: (tasks) => dispatch(updateTasksInState(tasks)),
         addTask: (task) => dispatch(addTask(task)),
+        deleteTask: (id) => dispatch(deleteTask(id)),
         logOut: () => dispatch(logOut())
     }
 }

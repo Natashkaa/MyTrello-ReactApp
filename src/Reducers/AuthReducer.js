@@ -41,16 +41,6 @@ const reducer = (state = {}, action) => {
                 ...state,
                 tasks: action.tasks
             }
-        case type.UPDATE_TASKS_IN_STATE:
-            return { 
-                ...state,
-                tasks: action.tasks
-            }
-        case type.UPDATE_TASKS_IN_STATE:
-            return { 
-                ...state,
-                task: action.task
-            }
         default:
             return state;
     }

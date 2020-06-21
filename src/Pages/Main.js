@@ -42,6 +42,7 @@ class MainPage extends React.Component{
     super(props);
     this.handleTasks = this.handleTasks.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
     this.state = {
       newTask: {
         Task_Priority: "important",
@@ -54,8 +55,8 @@ class MainPage extends React.Component{
         important: "rgb(253, 112, 112)",
         not_important: "rgb(112, 253, 171)",
         archive: "rgb(171, 182, 171)"
-      },
-      tasks : []
+      }
+      // tasks : []
     }
     
   }
@@ -65,14 +66,16 @@ class MainPage extends React.Component{
       const user = await GetUser(window.localStorage.getItem('currentUserId'));
       if(user) {
         const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'));
-         this.props.updateUserInState(user);
-      this.props.updateTasksInState(fetchTasks);
+        await this.props.updateTasksInState(fetchTasks);
+        this.props.updateUserInState(user);
+      
       }
       this.setState({
         newTask: { ...this.state.newTask,
                     UserId: window.localStorage.getItem('currentUserId')
                   }
       });
+      
     }
   }
 
@@ -94,6 +97,7 @@ class MainPage extends React.Component{
 
   handleSubmit = async event => {
     event.preventDefault();
+    console.log("old tasks length  " + this.props.tasks.length);
 
     let url = "http://localhost:5000/api/task/addTask";
     let token = window.localStorage.getItem("mytrellocredentials");
@@ -106,19 +110,23 @@ class MainPage extends React.Component{
           'Content-Type': 'application/json'
         }
       });
-      let jsn = response.json();
+      let jsn = await response.json();
       let newTask = jsn.data;
       if(newTask){
-        this.setState({
-          tasks: { ...this.state.tasks,
-                      newTask
-                    }
-        }); 
+        // this.setState({
+        //   tasks: { ...this.state.tasks,
+        //               newTask
+        //             }
+        // }); 
+        let tmpTasks = [ ...this.props.tasks, newTask ];
+        this.props.updateTasksInState(tmpTasks);
+        console.log("new tasks length  " + tmpTasks.length);
       }
     }
   }
     
   render () {
+    console.log("render tasks length  " + this.props.tasks.length);
     return (
       <div className="mainPage-container p-0 m-0">
         {this.props.user ? (
@@ -185,14 +193,15 @@ class MainPage extends React.Component{
               </div>
               {this.props.tasks ? (
                 <div className="row p-0 m-0 allTasksRow">
-                  <input type="button" class="btn btn-light" value="&laquo;"></input>
-                  {this.props.tasks.map( task => <TaskComponent id={task.taskId} 
+                  <input type="button" className="btn btn-light" value="&laquo;"></input>
+                  {this.props.tasks.map( task => <TaskComponent key={task.taskId} 
                                                               date={task.task_CreateDate}
                                                               priority={task.task_Priority}
                                                               name={task.task_Name}
                                                               description={task.task_Description}
-                                                              onChange={this.handleTasks}></TaskComponent>)}
-                  <input type="button" class="btn btn-light" value="&raquo;"></input>
+                                                              onChange={this.handleTasks}
+                                                              deleteBtn={() => {this.props.deleteTask(task.taskId)}}></TaskComponent>)}
+                  <input type="button" className="btn btn-light" value="&raquo;"></input>
                 </div>
               ) : null}
               </div>

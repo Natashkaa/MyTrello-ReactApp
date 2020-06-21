@@ -4,7 +4,7 @@ import page from '../Pages/SignUp'
 
 function mapStateToProps(state){
     return {
-        authCheck: state.authCheck,
+        authCheck: state.auth.authCheck,
         errorMessage: state.auth.errorMessage
     }
 }

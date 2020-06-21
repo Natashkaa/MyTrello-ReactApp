@@ -44,3 +44,9 @@ export function addTask(task){
         task: task
     }
 }
+export function deleteTask(id){
+    return{
+        type: types.DELETE_TASK,
+        taskId: id
+    }
+}

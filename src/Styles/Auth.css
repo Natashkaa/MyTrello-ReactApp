@@ -1,17 +1,20 @@
 @media (min-width: 1000px){
-    form{
-        width: 20%
+    .auth-form{
+        width: 30%;
+        height: 50%
     }
 }
 
 @media (min-width: 700px) and (max-width: 1000px) {
-    form{
-        width: 50%
+    .auth-form{
+        width: 50%;
+        height: 50%;
     }
 }
-@media (min-width: 100px) and (max-width: 800px) {
-    form{
-        width: 60%
+@media (min-width: 100px) and (max-width: 700px) {
+    .auth-form{
+        width: 60%;
+        height: 50%;
     }
 }
 .sign-up-container, .log-in-container{
@@ -43,10 +46,4 @@
 }
 .errorBlockHide{
     display: none;
-}
-.spinner-hide{
-    display: none
-}
-.spinner-show{
-    display: block
 }
