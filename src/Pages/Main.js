@@ -16,8 +16,8 @@ async function GetUser(id){
   let jsn = await response.json();
   return jsn.data;
 }
-async function GetTasks(id){
-  let url = "http://localhost:5000/api/task/userTasks/" + id;
+async function GetTasks(id, count){
+  let url = "http://localhost:5000/api/task/userTasks/" + id + "/" + count;
   let token = window.localStorage.getItem("mytrellocredentials");
   try{
     if(token){
@@ -43,6 +43,8 @@ class MainPage extends React.Component{
     this.handleTasks = this.handleTasks.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleIncrement = this.handleIncrement.bind(this);
+    this.handleDecrement = this.handleDecrement.bind(this);
     this.state = {
       newTask: {
         Task_Priority: "important",
@@ -55,7 +57,11 @@ class MainPage extends React.Component{
         important: "rgb(253, 112, 112)",
         not_important: "rgb(112, 253, 171)",
         archive: "rgb(171, 182, 171)"
-      }
+      },
+      decrement: 0,
+      increment: 1,
+      canDecrement: false,
+      canIncrement: true
       // tasks : []
     }
     
@@ -65,17 +71,27 @@ class MainPage extends React.Component{
     if(!this.props.user){
       const user = await GetUser(window.localStorage.getItem('currentUserId'));
       if(user) {
-        const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'));
+        const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment);
         await this.props.updateTasksInState(fetchTasks);
         this.props.updateUserInState(user);
-      
+        if(fetchTasks.length < 4){
+          this.setState({
+            canDecrement: false,
+            canIncrement: false
+          });
+        }
+        else{
+          this.setState({
+            canDecrement: false,
+            canIncrement: true
+          });
+        }
       }
       this.setState({
         newTask: { ...this.state.newTask,
                     UserId: window.localStorage.getItem('currentUserId')
                   }
       });
-      
     }
   }
 
@@ -97,8 +113,6 @@ class MainPage extends React.Component{
 
   handleSubmit = async event => {
     event.preventDefault();
-    console.log("old tasks length  " + this.props.tasks.length);
-
     let url = "http://localhost:5000/api/task/addTask";
     let token = window.localStorage.getItem("mytrellocredentials");
     if(token){
@@ -112,21 +126,64 @@ class MainPage extends React.Component{
       });
       let jsn = await response.json();
       let newTask = jsn.data;
-      if(newTask){
-        // this.setState({
-        //   tasks: { ...this.state.tasks,
-        //               newTask
-        //             }
-        // }); 
-        let tmpTasks = [ ...this.props.tasks, newTask ];
-        this.props.updateTasksInState(tmpTasks);
-        console.log("new tasks length  " + tmpTasks.length);
+      if(newTask){ 
+        this.setState({
+          canDecrement: false,
+          canIncrement: true,
+          increment: 1,
+          decrement: 0
+        });
+        const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment);
+        await this.props.updateTasksInState(fetchTasks);
       }
     }
   }
+
+  async handleIncrement () {
+    if(this.state.canIncrement){
+        const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment + 1);
+        if(fetchTasks.length == 4){
+          this.setState({
+            canDecrement: true,
+            canIncrement: true,
+            increment: ++this.state.increment,
+            decrement: ++this.state.decrement
+          });
+        }
+        else{
+          this.setState({
+            canDecrement: true,
+            canIncrement: false,
+            increment: ++this.state.increment,
+            decrement: ++this.state.decrement
+          });
+        }
+        this.props.updateTasksInState(fetchTasks);
+    };
+  }
+
+  async handleDecrement () {
+    if(this.state.decrement > 0){
+      const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.decrement);
+      if(fetchTasks.length == 4){
+        this.setState({
+          canDecrement: true,
+          canIncrement: true,
+          increment: this.state.increment - 1,
+          decrement: this.state.decrement - 1
+        });
+      }
+      else{
+        this.setState({
+          canDecrement: false,
+          canIncrement: true
+        });
+      }
+      this.props.updateTasksInState(fetchTasks);
+  };
+  }
     
   render () {
-    console.log("render tasks length  " + this.props.tasks.length);
     return (
       <div className="mainPage-container p-0 m-0">
         {this.props.user ? (
@@ -192,8 +249,11 @@ class MainPage extends React.Component{
               </form>
               </div>
               {this.props.tasks ? (
-                <div className="row p-0 m-0 allTasksRow">
-                  <input type="button" className="btn btn-light" value="&laquo;"></input>
+                <div className="row p-3 m-0 allTasksRow">
+                  <div className="inc-decr-btn-container col-sm-12 col-md-1 col-lg-1">
+                    <input type="button" className="btn btn-active btn-left" value="&laquo;" onClick={this.handleDecrement}></input>
+                    <input type="button" className="btn btn-active btn-up" value="&uArr;" onClick={this.handleDecrement}></input>
+                  </div>
                   {this.props.tasks.map( task => <TaskComponent key={task.taskId} 
                                                               date={task.task_CreateDate}
                                                               priority={task.task_Priority}
@@ -201,7 +261,10 @@ class MainPage extends React.Component{
                                                               description={task.task_Description}
                                                               onChange={this.handleTasks}
                                                               deleteBtn={() => {this.props.deleteTask(task.taskId)}}></TaskComponent>)}
-                  <input type="button" className="btn btn-light" value="&raquo;"></input>
+                  <div className="inc-decr-btn-container col-sm-12 col-md-1 col-lg-1">
+                    <input type="button" className="btn btn-active btn-right" value="&raquo;" onClick={this.handleIncrement}></input>
+                    <input type="button" className="btn btn-active btn-bot" value="&dArr;" onClick={this.handleIncrement}></input>
+                    </div>
                 </div>
               ) : null}
               </div>
