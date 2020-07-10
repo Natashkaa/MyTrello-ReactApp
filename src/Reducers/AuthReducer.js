@@ -41,6 +41,11 @@ const reducer = (state = {}, action) => {
                 ...state,
                 tasks: action.tasks
             }
+        case type.DELETE_TASK:
+            return { 
+                ...state,
+                taskId: action.taskId
+            }
         default:
             return state;
     }

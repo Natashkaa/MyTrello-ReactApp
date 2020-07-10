@@ -25,7 +25,7 @@ function taskComponent(props){
                 </div>
                 <div className="card-footer">
                     <button className="btn"><img src={edit} className="task-btn-icon"></img></button>
-                    <button className="btn"><img src={archive} className="task-btn-icon"></img></button>
+                    <button className="btn" onClick={props.archiveBtn}><img src={archive} className="task-btn-icon"></img></button>
                     <button className="btn" onClick={props.deleteBtn}><img src={del} className="task-btn-icon"></img></button>
                 </div>
             </div>

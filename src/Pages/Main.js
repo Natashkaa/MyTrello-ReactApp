@@ -43,6 +43,8 @@ class MainPage extends React.Component{
     this.handleTasks = this.handleTasks.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.deleteTask = this.deleteTask.bind(this);
+    this.makeArchiveTask = this.makeArchiveTask.bind(this);
     this.handleIncrement = this.handleIncrement.bind(this);
     this.handleDecrement = this.handleDecrement.bind(this);
     this.state = {
@@ -115,27 +117,31 @@ class MainPage extends React.Component{
     event.preventDefault();
     let url = "http://localhost:5000/api/task/addTask";
     let token = window.localStorage.getItem("mytrellocredentials");
-    if(token){
-      let response = await fetch(url, {
-        method: 'POST', 
-        body: JSON.stringify(this.state.newTask),
-        headers: { 
-          'Authorization': `bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      let jsn = await response.json();
-      let newTask = jsn.data;
-      if(newTask){ 
-        this.setState({
-          canDecrement: false,
-          canIncrement: true,
-          increment: 1,
-          decrement: 0
+    try{
+      if(token){
+        let response = await fetch(url, {
+          method: 'POST', 
+          body: JSON.stringify(this.state.newTask),
+          headers: { 
+            'Authorization': `bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         });
-        const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment);
-        await this.props.updateTasksInState(fetchTasks);
+        let jsn = await response.json();
+        let newTask = jsn.data;
+        if(newTask){ 
+          this.setState({
+            canDecrement: false,
+            canIncrement: true,
+            increment: 1,
+            decrement: 0
+          });
+          const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment);
+          await this.props.updateTasksInState(fetchTasks);
+        }
       }
+    }catch(err){
+      window.location.href="logIn"
     }
   }
 
@@ -181,6 +187,64 @@ class MainPage extends React.Component{
       }
       this.props.updateTasksInState(fetchTasks);
   };
+  }
+
+  deleteTask = async taskId => {
+    let url = "http://localhost:5000/api/task/deleteTask/" + taskId;
+    let token = window.localStorage.getItem("mytrellocredentials");
+    try{
+      if(token){
+        let response = await fetch(url, {
+          method: 'DELETE',
+          headers: { 
+            'Authorization': `bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        let jsn = await response.json();
+        if(jsn.data){
+          const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment);
+          await this.props.updateTasksInState(fetchTasks);
+        }
+      }
+    }catch(err){
+      window.location.href="logIn"
+    }
+  }
+  makeArchiveTask = async taskId =>{
+    let url = "http://localhost:5000/api/task/updateTask/" + taskId;
+    let token = window.localStorage.getItem("mytrellocredentials");
+    try{
+      if(token){
+        let getOneTaskURL = "http://localhost:5000/api/task/getOne/" + taskId;
+        let updatedTask = await fetch(getOneTaskURL, {
+          method: "GET",
+          headers: {
+            'Authorization': `bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }).then(x => x.json()).then(d => d.data);
+
+        updatedTask.Task_Priority = "archive";
+        updatedTask.IsArchived = true;
+
+        let response = await fetch(url, {
+          method: "PUT",
+          body: JSON.stringify(updatedTask),
+          headers: {
+            'Authorization': `bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        let jsn = await response.json();
+        if(jsn.data){
+          const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment);
+          await this.props.updateTasksInState(fetchTasks);
+        }
+      }
+    }catch(err){
+      window.location.href="logIn"
+    }
   }
     
   render () {
@@ -260,7 +324,9 @@ class MainPage extends React.Component{
                                                               name={task.task_Name}
                                                               description={task.task_Description}
                                                               onChange={this.handleTasks}
-                                                              deleteBtn={() => {this.props.deleteTask(task.taskId)}}></TaskComponent>)}
+                                                              deleteBtn={() => {this.deleteTask(task.taskId)}}
+                                                              archiveBtn={() => {this.makeArchiveTask(task.taskId)}}
+                                                              archiveBtn={() => {this.makeArchiveTask(task.taskId)}}></TaskComponent>)}
                   <div className="inc-decr-btn-container col-sm-12 col-md-1 col-lg-1">
                     <input type="button" className="btn btn-active btn-right" value="&raquo;" onClick={this.handleIncrement}></input>
                     <input type="button" className="btn btn-active btn-bot" value="&dArr;" onClick={this.handleIncrement}></input>
