@@ -138,6 +138,12 @@ class MainPage extends React.Component{
           });
           const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment);
           await this.props.updateTasksInState(fetchTasks);
+          this.setState({
+            newTask: {...newTask,
+                      Task_Name: "",
+                      Task_Description: "",
+                      IsArchived: "false"}
+          });
         }
       }
     }catch(err){
@@ -315,7 +321,7 @@ class MainPage extends React.Component{
               {this.props.tasks ? (
                 <div className="row p-3 m-0 allTasksRow">
                   <div className="inc-decr-btn-container col-sm-12 col-md-1 col-lg-1">
-                    <input type="button" className="btn btn-active btn-left" value="&laquo;" onClick={this.handleDecrement}></input>
+                    <input type="button" className="btn btn-active btn-left test-btn" value="&laquo;" onClick={this.handleDecrement}></input>
                     <input type="button" className="btn btn-active btn-up" value="&uArr;" onClick={this.handleDecrement}></input>
                   </div>
                   {this.props.tasks.map( task => <TaskComponent key={task.taskId} 

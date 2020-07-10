@@ -38,7 +38,11 @@
     background-color: rgb(253, 252, 252);
 }
 .link{
-    color: rgb(106, 197, 209)
+    color: rgb(106, 197, 209);
+}
+.link:hover{
+    color: rgb(142, 230, 241);
+    cursor: pointer;
 }
 .errorBlockShow{
     margin: 10px 0;
