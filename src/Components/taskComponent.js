@@ -24,7 +24,7 @@ function taskComponent(props){
                     <p className="card-text">{props.description}</p>
                 </div>
                 <div className="card-footer">
-                    <button className="btn"><img src={edit} className="task-btn-icon"></img></button>
+                    <button className="btn" data-toggle="modal" data-target="#exampleModal" onClick={props.editBtn}><img src={edit} className="task-btn-icon"></img></button>
                     <button className="btn" onClick={props.archiveBtn}><img src={archive} className="task-btn-icon"></img></button>
                     <button className="btn" onClick={props.deleteBtn}><img src={del} className="task-btn-icon"></img></button>
                 </div>

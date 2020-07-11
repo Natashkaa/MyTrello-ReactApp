@@ -11,6 +11,7 @@ import  authReducer from './Reducers/AuthReducer'
 import { Router } from "react-router-dom"
 import {createBrowserHistory} from 'history'
 
+
 let state = {
   auth: {
     user: null,

@@ -10,6 +10,9 @@ import facebook from '../imgs/social/facebook.png';
 
 import TaskComponent from '../Components/taskComponent';
 
+import Modal from 'react-bootstrap/Modal'
+import Button from 'react-bootstrap/Button'
+
 async function GetUser(id){
   let url = "http://localhost:5000/api/user/" + id;
   let response = await fetch(url)
@@ -42,13 +45,24 @@ class MainPage extends React.Component{
     super(props);
     this.handleTasks = this.handleTasks.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.handleModalChange = this.handleModalChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleCloseModal = this.handleCloseModal.bind(this);
     this.deleteTask = this.deleteTask.bind(this);
     this.makeArchiveTask = this.makeArchiveTask.bind(this);
+    this.updateTask = this.updateTask.bind(this);
     this.handleIncrement = this.handleIncrement.bind(this);
     this.handleDecrement = this.handleDecrement.bind(this);
     this.state = {
       newTask: {
+        Task_Priority: "important",
+        Task_Name: "",
+        Task_Description: "",
+        UserId: 0,
+        IsArchived: "false"
+      },
+      editedTask: {
+        TaskId: 0,
         Task_Priority: "important",
         Task_Name: "",
         Task_Description: "",
@@ -63,7 +77,8 @@ class MainPage extends React.Component{
       decrement: 0,
       increment: 1,
       canDecrement: false,
-      canIncrement: true
+      canIncrement: true,
+      showModal: false
       // tasks : []
     }
     
@@ -84,7 +99,7 @@ class MainPage extends React.Component{
         }
         else{
           this.setState({
-            canDecrement: false,
+            canDecrement: true,
             canIncrement: true
           });
         }
@@ -100,6 +115,14 @@ class MainPage extends React.Component{
   handleChange = event => {
     this.setState({
       newTask: { ...this.state.newTask,
+                  [event.target.name]: event.target.value
+                }
+    });
+  }
+
+  handleModalChange = event => {
+    this.setState({
+      editedTask: { ...this.state.editedTask,
                   [event.target.name]: event.target.value
                 }
     });
@@ -151,6 +174,13 @@ class MainPage extends React.Component{
     }
   }
 
+  handleCloseModal = event => {
+    event.preventDefault();
+    this.setState({
+      showModal: false
+    });
+  }
+
   async handleIncrement () {
     if(this.state.canIncrement){
         const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment + 1);
@@ -192,7 +222,7 @@ class MainPage extends React.Component{
         });
       }
       this.props.updateTasksInState(fetchTasks);
-  };
+    };
   }
 
   deleteTask = async taskId => {
@@ -251,6 +281,41 @@ class MainPage extends React.Component{
     }catch(err){
       window.location.href="logIn"
     }
+  }
+  updateTask = taskForEdit => {
+    this.setState({
+      editedTask: {...this.state.editedTask,
+                TaskId: taskForEdit.taskId,
+                Task_Priority: taskForEdit.task_Priority,
+                Task_Name: taskForEdit.task_Name,
+                Task_Description: taskForEdit.task_Description,
+                UserId: taskForEdit.userId,
+                IsArchived: taskForEdit.isArchived},
+      showModal: true
+    });
+  }
+  saveEditTask = async () => {
+    let url = "http://localhost:5000/api/task/updateTask/" + this.state.editedTask.TaskId;
+    let token = window.localStorage.getItem("mytrellocredentials");
+    try{
+      if(token){
+        await fetch(url, {
+          method: "PUT",
+          body: JSON.stringify(this.state.editedTask),
+          headers: {
+            'Authorization': `bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment);
+        await this.props.updateTasksInState(fetchTasks);
+        this.setState({
+          showModal: false
+        });
+      }
+    }catch(err){
+       window.location.href="logIn"
+    }  
   }
     
   render () {
@@ -318,6 +383,7 @@ class MainPage extends React.Component{
               <input type="submit" className="btn btn-info" value="Save"/>
               </form>
               </div>
+              
               {this.props.tasks ? (
                 <div className="row p-3 m-0 allTasksRow">
                   <div className="inc-decr-btn-container col-sm-12 col-md-1 col-lg-1">
@@ -332,7 +398,7 @@ class MainPage extends React.Component{
                                                               onChange={this.handleTasks}
                                                               deleteBtn={() => {this.deleteTask(task.taskId)}}
                                                               archiveBtn={() => {this.makeArchiveTask(task.taskId)}}
-                                                              archiveBtn={() => {this.makeArchiveTask(task.taskId)}}></TaskComponent>)}
+                                                              editBtn={() => {this.updateTask(task)}}></TaskComponent>)}
                   <div className="inc-decr-btn-container col-sm-12 col-md-1 col-lg-1">
                     <input type="button" className="btn btn-active btn-right" value="&raquo;" onClick={this.handleIncrement}></input>
                     <input type="button" className="btn btn-active btn-bot" value="&dArr;" onClick={this.handleIncrement}></input>
@@ -351,9 +417,9 @@ class MainPage extends React.Component{
                   © 2020 enot.com · Made in Kiev (Ukrain)
                 </div>
               </div>
-                
             </div>
           </div>
+          
           ) : 
           <div className="row notAuthrow">
             <div className="mainPageNotAuth-container">
@@ -366,7 +432,58 @@ class MainPage extends React.Component{
               </div>
             </div>
           </div>}  
-      </div>
+          {/* MODAL */}
+          <Modal show={this.state.showModal}>
+          <Modal.Header>
+            <Modal.Title>
+            <div className="form-group">
+                  <select value={this.state.editedTask.Task_Priority} 
+                          className="form-control priorityList" 
+                          id="Task_Priority" 
+                          name="Task_Priority" 
+                          onChange={this.handleModalChange}>
+                    <option style={{backgroundColor: this.state.priority.important}} 
+                            value="important">important</option>
+                    <option style={{backgroundColor: this.state.priority.not_important}} 
+                            value="not_important">not important</option>
+                  </select>
+                </div>
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+          <div className="form-group">
+              <label htmlFor="task_Name" className="col-sm-2 col-form-label">Name</label>
+                <div className="col-sm-8 col-md-8 col-lg-12 ml-1">
+                  <input type="text"
+                          className="form-control" 
+                          id="Task_Name" 
+                          name="Task_Name"  
+                          value={this.state.editedTask.Task_Name}
+                          onChange={this.handleModalChange}/>
+                </div>
+            </div>
+            <div className="form-group">
+              <label htmlFor="Task_Description" className="col-sm-2 col-form-label">About</label>
+                <div className="col-sm-8 col-md-8 col-lg-12 ml-1">
+                  <input type="text"
+                          className="form-control" 
+                          id="Task_Description" 
+                          name="Task_Description" 
+                          value={this.state.editedTask.Task_Description}
+                          onChange={this.handleModalChange}/>
+                </div>
+              </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={this.handleCloseModal}>
+              Close
+            </Button>
+            <Button variant="primary" onClick={this.saveEditTask}>
+              Save Changes
+            </Button>
+          </Modal.Footer>
+        </Modal> 
+    </div>
     )
   }
 }
