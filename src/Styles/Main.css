@@ -138,6 +138,9 @@
 /*new task*/
 .newTaskRow{
     width: 100% !important;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 .newTaskForm{
     border-radius: 20px;

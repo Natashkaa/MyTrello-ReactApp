@@ -19,8 +19,8 @@ async function GetUser(id){
   let jsn = await response.json();
   return jsn.data;
 }
-async function GetTasks(id, count){
-  let url = "http://localhost:5000/api/task/userTasks/" + id + "/" + count;
+async function GetTasks(id, count, needSort){
+  let url = "http://localhost:5000/api/task/userTasks/" + id + "/" + count + "/" + needSort;
   let token = window.localStorage.getItem("mytrellocredentials");
   try{
     if(token){
@@ -45,6 +45,8 @@ class MainPage extends React.Component{
     super(props);
     this.handleTasks = this.handleTasks.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.handleSortToOldChange = this.handleSortToOldChange.bind(this);
+    this.handleSortToNewestChange = this.handleSortToNewestChange.bind(this);
     this.handleModalChange = this.handleModalChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleCloseModal = this.handleCloseModal.bind(this);
@@ -78,7 +80,8 @@ class MainPage extends React.Component{
       increment: 1,
       canDecrement: false,
       canIncrement: true,
-      showModal: false
+      showModal: false,
+      needSort: 0
       // tasks : []
     }
     
@@ -88,12 +91,12 @@ class MainPage extends React.Component{
     if(!this.props.user){
       const user = await GetUser(window.localStorage.getItem('currentUserId'));
       if(user) {
-        const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment);
+        const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment, this.state.needSort);
         await this.props.updateTasksInState(fetchTasks);
         this.props.updateUserInState(user);
         if(fetchTasks.length < 4){
           this.setState({
-            canDecrement: false,
+            canDecrement: true,
             canIncrement: false
           });
         }
@@ -117,6 +120,26 @@ class MainPage extends React.Component{
       newTask: { ...this.state.newTask,
                   [event.target.name]: event.target.value
                 }
+    });
+  }
+  handleSortToOldChange =  async () => {
+    
+
+    const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment, 0);
+    this.props.updateTasksInState(fetchTasks);
+    
+    this.setState({
+      needSort : 0
+    });
+  }
+  handleSortToNewestChange = async () => {
+    
+
+    const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment, 1);
+    this.props.updateTasksInState(fetchTasks);
+    
+    this.setState({
+      needSort : 1
     });
   }
 
@@ -159,7 +182,7 @@ class MainPage extends React.Component{
             increment: 1,
             decrement: 0
           });
-          const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment);
+          const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment, this.state.needSort);
           await this.props.updateTasksInState(fetchTasks);
           this.setState({
             newTask: {...newTask,
@@ -183,7 +206,7 @@ class MainPage extends React.Component{
 
   async handleIncrement () {
     if(this.state.canIncrement){
-        const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment + 1);
+        const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment + 1, this.state.needSort);
         if(fetchTasks.length == 4){
           this.setState({
             canDecrement: true,
@@ -191,22 +214,22 @@ class MainPage extends React.Component{
             increment: ++this.state.increment,
             decrement: ++this.state.decrement
           });
+          this.props.updateTasksInState(fetchTasks);
         }
-        else{
+        else if(fetchTasks.length < 4 && fetchTasks.length > 0){
           this.setState({
             canDecrement: true,
             canIncrement: false,
             increment: ++this.state.increment,
             decrement: ++this.state.decrement
           });
+          this.props.updateTasksInState(fetchTasks);
         }
-        this.props.updateTasksInState(fetchTasks);
     };
   }
-
   async handleDecrement () {
     if(this.state.decrement > 0){
-      const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.decrement);
+      const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.decrement, this.state.needSort);
       if(fetchTasks.length == 4){
         this.setState({
           canDecrement: true,
@@ -239,7 +262,7 @@ class MainPage extends React.Component{
         });
         let jsn = await response.json();
         if(jsn.data){
-          const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment);
+          const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment, this.state.needSort);
           await this.props.updateTasksInState(fetchTasks);
         }
       }
@@ -382,6 +405,16 @@ class MainPage extends React.Component{
                 </div>
               <input type="submit" className="btn btn-info" value="Save"/>
               </form>
+              
+                <div class="btn-sort-group">
+                  <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Sort by date
+                  </button>
+                  <div class="dropdown-menu">
+                    <button class="dropdown-item" onClick={this.handleSortToOldChange}>From newest to oldest</button>
+                    <button class="dropdown-item" onClick={this.handleSortToNewestChange}>From oldest to newest</button>
+                  </div>
+                </div>
               </div>
               
               {this.props.tasks ? (
