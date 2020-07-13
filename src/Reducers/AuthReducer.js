@@ -29,7 +29,8 @@ const reducer = (state = {}, action) => {
                 ...state,
                 user: null,
                 authCheck: true,
-                errorMessage: null
+                errorMessage: null,
+                tasks: null
             }
         case type.UPDATE_USER_IN_STATE:
             return { 

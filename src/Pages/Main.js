@@ -19,8 +19,8 @@ async function GetUser(id){
   let jsn = await response.json();
   return jsn.data;
 }
-async function GetTasks(id, count, needSort){
-  let url = "http://localhost:5000/api/task/userTasks/" + id + "/" + count + "/" + needSort;
+async function GetTasks(id, count, needSort, archive){
+  let url = "http://localhost:5000/api/task/userTasks/" + id + "/" + count + "/" + needSort + "/" + archive;
   let token = window.localStorage.getItem("mytrellocredentials");
   try{
     if(token){
@@ -43,12 +43,13 @@ async function GetTasks(id, count, needSort){
 class MainPage extends React.Component{
   constructor(props){
     super(props);
-    this.handleTasks = this.handleTasks.bind(this);
+    this.handleTaskInput = this.handleTaskInput.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleSortToOldChange = this.handleSortToOldChange.bind(this);
     this.handleSortToNewestChange = this.handleSortToNewestChange.bind(this);
     this.handleModalChange = this.handleModalChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleAllAndArchive = this.handleAllAndArchive.bind(this);
     this.handleCloseModal = this.handleCloseModal.bind(this);
     this.deleteTask = this.deleteTask.bind(this);
     this.makeArchiveTask = this.makeArchiveTask.bind(this);
@@ -81,8 +82,8 @@ class MainPage extends React.Component{
       canDecrement: false,
       canIncrement: true,
       showModal: false,
-      needSort: 0
-      // tasks : []
+      needSort: 0,
+      archive: false
     }
     
   }
@@ -91,7 +92,7 @@ class MainPage extends React.Component{
     if(!this.props.user){
       const user = await GetUser(window.localStorage.getItem('currentUserId'));
       if(user) {
-        const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment, this.state.needSort);
+        const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment, this.state.needSort, this.state.archive);
         await this.props.updateTasksInState(fetchTasks);
         this.props.updateUserInState(user);
         if(fetchTasks.length < 4){
@@ -122,10 +123,9 @@ class MainPage extends React.Component{
                 }
     });
   }
+  //sort tasks by date
   handleSortToOldChange =  async () => {
-    
-
-    const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment, 0);
+    const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment, 0, this.state.archive);
     this.props.updateTasksInState(fetchTasks);
     
     this.setState({
@@ -133,16 +133,14 @@ class MainPage extends React.Component{
     });
   }
   handleSortToNewestChange = async () => {
-    
-
-    const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment, 1);
+    const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment, 1, this.state.archive);
     this.props.updateTasksInState(fetchTasks);
     
     this.setState({
       needSort : 1
     });
   }
-
+  //open modal for edit task
   handleModalChange = event => {
     this.setState({
       editedTask: { ...this.state.editedTask,
@@ -150,15 +148,81 @@ class MainPage extends React.Component{
                 }
     });
   }
+  handleCloseModal = event => {
+    event.preventDefault();
+    this.setState({
+      showModal: false
+    });
+  }
+  
+  //filter [pick archive tasks or all except archive]
+  handleAllAndArchive = async () => {
+    await this.setState({
+      archive: !this.state.archive,
+      canDecrement: false,
+      canIncrement: true,
+      increment: 1,
+      decrement: 0
+    });
 
-  handleTasks = event => {
+    const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), 
+                                        this.state.increment, 
+                                        this.state.needSort, 
+                                        this.state.archive);
+    await this.props.updateTasksInState(fetchTasks);
+  }
+  //pagination
+  async handleIncrement () {
+    if(this.state.canIncrement){
+        const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment + 1, this.state.needSort, this.state.archive);
+        if(fetchTasks.length == 4){
+          this.setState({
+            canDecrement: true,
+            canIncrement: true,
+            increment: ++this.state.increment,
+            decrement: ++this.state.decrement
+          });
+          this.props.updateTasksInState(fetchTasks);
+        }
+        else if(fetchTasks.length < 4 && fetchTasks.length > 0){
+          this.setState({
+            canDecrement: true,
+            canIncrement: false,
+            increment: ++this.state.increment,
+            decrement: ++this.state.decrement
+          });
+          this.props.updateTasksInState(fetchTasks);
+        }
+    };
+  }
+  async handleDecrement () {
+    if(this.state.decrement > 0){
+      const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.decrement, this.state.needSort, this.state.archive);
+      if(fetchTasks.length == 4){
+        this.setState({
+          canDecrement: true,
+          canIncrement: true,
+          increment: this.state.increment - 1,
+          decrement: this.state.decrement - 1
+        });
+      }
+      else{
+        this.setState({
+          canDecrement: false,
+          canIncrement: true
+        });
+      }
+      this.props.updateTasksInState(fetchTasks);
+    };
+  }
+  //CRUD
+  handleTaskInput = event => {
     this.setState({
       newTask: { ...this.state.newTask,
                   [event.target.name]: event.target.value
                 }
     }); 
   }
-
   handleSubmit = async event => {
     event.preventDefault();
     let url = "http://localhost:5000/api/task/addTask";
@@ -182,7 +246,7 @@ class MainPage extends React.Component{
             increment: 1,
             decrement: 0
           });
-          const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment, this.state.needSort);
+          const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment, this.state.needSort, this.state.archive);
           await this.props.updateTasksInState(fetchTasks);
           this.setState({
             newTask: {...newTask,
@@ -196,58 +260,6 @@ class MainPage extends React.Component{
       window.location.href="logIn"
     }
   }
-
-  handleCloseModal = event => {
-    event.preventDefault();
-    this.setState({
-      showModal: false
-    });
-  }
-
-  async handleIncrement () {
-    if(this.state.canIncrement){
-        const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment + 1, this.state.needSort);
-        if(fetchTasks.length == 4){
-          this.setState({
-            canDecrement: true,
-            canIncrement: true,
-            increment: ++this.state.increment,
-            decrement: ++this.state.decrement
-          });
-          this.props.updateTasksInState(fetchTasks);
-        }
-        else if(fetchTasks.length < 4 && fetchTasks.length > 0){
-          this.setState({
-            canDecrement: true,
-            canIncrement: false,
-            increment: ++this.state.increment,
-            decrement: ++this.state.decrement
-          });
-          this.props.updateTasksInState(fetchTasks);
-        }
-    };
-  }
-  async handleDecrement () {
-    if(this.state.decrement > 0){
-      const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.decrement, this.state.needSort);
-      if(fetchTasks.length == 4){
-        this.setState({
-          canDecrement: true,
-          canIncrement: true,
-          increment: this.state.increment - 1,
-          decrement: this.state.decrement - 1
-        });
-      }
-      else{
-        this.setState({
-          canDecrement: false,
-          canIncrement: true
-        });
-      }
-      this.props.updateTasksInState(fetchTasks);
-    };
-  }
-
   deleteTask = async taskId => {
     let url = "http://localhost:5000/api/task/deleteTask/" + taskId;
     let token = window.localStorage.getItem("mytrellocredentials");
@@ -262,7 +274,7 @@ class MainPage extends React.Component{
         });
         let jsn = await response.json();
         if(jsn.data){
-          const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment, this.state.needSort);
+          const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment, this.state.needSort, this.state.archive);
           await this.props.updateTasksInState(fetchTasks);
         }
       }
@@ -297,7 +309,7 @@ class MainPage extends React.Component{
         });
         let jsn = await response.json();
         if(jsn.data){
-          const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment);
+          const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment, this.state.needSort, this.state.archive);
           await this.props.updateTasksInState(fetchTasks);
         }
       }
@@ -330,7 +342,7 @@ class MainPage extends React.Component{
             'Content-Type': 'application/json'
           }
         });
-        const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment);
+        const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment, this.state.needSort, this.state.archive);
         await this.props.updateTasksInState(fetchTasks);
         this.setState({
           showModal: false
@@ -405,15 +417,21 @@ class MainPage extends React.Component{
                 </div>
               <input type="submit" className="btn btn-info" value="Save"/>
               </form>
-              
-                <div class="btn-sort-group">
-                  <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Sort by date
-                  </button>
-                  <div class="dropdown-menu">
-                    <button class="dropdown-item" onClick={this.handleSortToOldChange}>From newest to oldest</button>
-                    <button class="dropdown-item" onClick={this.handleSortToNewestChange}>From oldest to newest</button>
+              {/* sort, filter */}
+                <div className="choice-btn-group">
+                  <div class="btn-sort-group">
+                    <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Sort by date
+                    </button>
+
+                    <div class="dropdown-menu">
+                      <button class="dropdown-item" onClick={this.handleSortToOldChange}>From newest to oldest</button>
+                      <button class="dropdown-item" onClick={this.handleSortToNewestChange}>From oldest to newest</button>
+                    </div>
                   </div>
+                    <button className="btn btn-info" onClick={this.handleAllAndArchive}>
+                      {this.state.archive ?  "All"  : "Archive"}
+                    </button>
                 </div>
               </div>
               
@@ -428,7 +446,7 @@ class MainPage extends React.Component{
                                                               priority={task.task_Priority}
                                                               name={task.task_Name}
                                                               description={task.task_Description}
-                                                              onChange={this.handleTasks}
+                                                              onChange={this.handleTaskInput}
                                                               deleteBtn={() => {this.deleteTask(task.taskId)}}
                                                               archiveBtn={() => {this.makeArchiveTask(task.taskId)}}
                                                               editBtn={() => {this.updateTask(task)}}></TaskComponent>)}
@@ -520,9 +538,5 @@ class MainPage extends React.Component{
     )
   }
 }
-
-
-
-
 
 export default MainPage;
