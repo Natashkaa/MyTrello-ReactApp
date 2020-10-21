@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import '../Styles/Auth.css';
 
 import { Link, useHistory } from "react-router-dom"
@@ -38,11 +38,20 @@ function LogIn (props){
         })
     }
 
+    useEffect(() => {
+        const handleEnter = (event) => {
+           if (event.keyCode === 13) {
+            log_in(document.getElementById('login_email').value, document.getElementById('login_password').value)
+          }
+        };
+        window.addEventListener('keydown', handleEnter);
+      }, []);
+
     return (
         <div className="log-in-container">
             <form className="auth-form">
                 <div className="form-group">
-                    <label htmlFor="email" className="whiteText">Email address</label>
+                    <label htmlFor="login_email" className="whiteText">Email address</label>
                     <input  type="text"
                             placeholder="tom123@gmail.com"
                             className="form-control"
@@ -52,7 +61,7 @@ function LogIn (props){
                             onChange={e => props.changeInput(e.target.value, e.target.name)}/>
                 </div>
                 <div className="form-group">
-                    <label className="form-check-label whiteText" htmlFor="password">Password</label>
+                    <label className="form-check-label whiteText" htmlFor="login_password">Password</label>
                     <input type="password" 
                         className="form-control" 
                         id="login_password"
