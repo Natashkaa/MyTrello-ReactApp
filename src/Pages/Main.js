@@ -2,7 +2,7 @@ import React from 'react'
 import '../Styles/Main.css';
 import { Link, useHistory } from "react-router-dom"
 
-import user from '../imgs/user.png';
+//import user from '../imgs/user.png';
 import exit from '../imgs/exit.png';
 import twitter from '../imgs/social/twitter.png';
 import instagram from '../imgs/social/instagram.png';
@@ -13,8 +13,10 @@ import TaskComponent from '../Components/taskComponent';
 import Modal from 'react-bootstrap/Modal'
 import Button from 'react-bootstrap/Button'
 
+import $ from 'jquery'
+
 async function GetUser(id){
-  let url = "http://localhost:5000/api/user/" + id;
+  let url = "http://localhost:5000/api/user/getOne/" + id;
   let response = await fetch(url)
   let jsn = await response.json();
   return jsn.data;
@@ -39,6 +41,27 @@ async function GetTasks(id, count, needSort, archive){
     window.location.href="logIn"
   }
 }
+async function GetUserPhoto(path){
+  let url = "http://localhost:5000/api/user/get_photo/" + path;
+  let token = window.localStorage.getItem("mytrellocredentials");
+  try{
+    if(token){
+        let response = await fetch(url, {
+        method: 'GET',
+        headers: { 
+          'Authorization': `bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      let jsn = await response.json();
+      return jsn;
+    }
+  }
+  catch(err){
+    alert("OOOOPS")
+  }
+}
+const DEF_PATH = "../logo.svg";
 
 class MainPage extends React.Component{
   constructor(props){
@@ -54,8 +77,10 @@ class MainPage extends React.Component{
     this.deleteTask = this.deleteTask.bind(this);
     this.makeArchiveTask = this.makeArchiveTask.bind(this);
     this.updateTask = this.updateTask.bind(this);
+    this.fileSelectHandler = this.fileSelectHandler.bind(this);
     this.handleIncrement = this.handleIncrement.bind(this);
     this.handleDecrement = this.handleDecrement.bind(this);
+    
     this.state = {
       newTask: {
         Task_Priority: "important",
@@ -83,15 +108,21 @@ class MainPage extends React.Component{
       canIncrement: true,
       showModal: false,
       needSort: 0,
-      archive: false
+      archive: false,
+      photo: DEF_PATH
     }
-    
   }
   
   async componentWillMount(){
     if(!this.props.user){
       const user = await GetUser(window.localStorage.getItem('currentUserId'));
       if(user) {
+        let res_with_photo = await GetUserPhoto(user.user_PhotoPath)
+        if(res_with_photo){
+          this.setState({
+            photo: res_with_photo
+          });
+        }
         const fetchTasks = await GetTasks(window.localStorage.getItem('currentUserId'), this.state.increment, this.state.needSort, this.state.archive);
         await this.props.updateTasksInState(fetchTasks);
         this.props.updateUserInState(user);
@@ -352,6 +383,48 @@ class MainPage extends React.Component{
        window.location.href="logIn"
     }  
   }
+
+  fileSelectHandler = async e => {
+    e.preventDefault();
+    let formData = new FormData();
+    formData.append('uploadedFile', e.target.files[0]);
+    console.log(...formData);
+
+    let url = "http://localhost:5000/api/user/update_photo/" + window.localStorage.getItem('currentUserId');
+    let token = window.localStorage.getItem("mytrellocredentials");
+    try{
+      if(token){
+        let response = await fetch(url, {
+          method: 'POST',
+          headers: { 
+            'Authorization': `bearer ${token}`
+          },
+          body:  formData
+        });
+        let jsn = await response.json();
+        let res_with_photo = await GetUserPhoto(jsn.data.user_PhotoPath)
+        this.setState({
+              photo: res_with_photo
+        });
+        
+
+        // var blob = new Blob( [ jsn ], { type: "image/png" } );
+        // var imageUrl = URL.createObjectURL( blob ); 
+        
+
+        // var objectURL = "";
+        // if(response.ok) {
+        //   response.blob().then(function(blob) {
+        //     objectURL = URL.createObjectURL(blob);
+            
+        //   });
+        // }
+        
+      
+    }}catch(err){
+      alert("ERROR" + err);
+    }
+  };
     
   render () {
     return (
@@ -363,8 +436,13 @@ class MainPage extends React.Component{
               <div className="row mainRow no-gutters row-cols-1">
               <div className="userCol col-lg-1 col-sm-12 col-xs-12 pt-2">
 
-                <div className="row p-0 m-0 iconRow">
-                  <img src={user} className="userIcon"></img>
+                <div className="row p-0 m-0  iconRow">
+                  {/* <img src={require("../logo.svg")} className="userIcon"></img> */}
+                  <img src={"data:image/png;base64," + this.state.photo} className="userIcon"></img>
+                  <form encType="multipart/form-data" className="formForFile" method="post" name="fileinfo">
+                    <input className="inputFile" type="file" name="file" id="file" accept=".jpg, .jpeg, .png" required onChange={this.fileSelectHandler}/>
+                    <label for="file" className="labelFotInputFile">Update photo</label>
+                  </form>
                 </div>
 
                 <div className="row p-0 m-0 userDataRow">
@@ -419,14 +497,14 @@ class MainPage extends React.Component{
               </form>
               {/* sort, filter */}
                 <div className="choice-btn-group">
-                  <div class="btn-sort-group">
-                    <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <div className="btn-sort-group">
+                    <button type="button" className="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                       Sort by date
                     </button>
 
-                    <div class="dropdown-menu">
-                      <button class="dropdown-item" onClick={this.handleSortToOldChange}>From newest to oldest</button>
-                      <button class="dropdown-item" onClick={this.handleSortToNewestChange}>From oldest to newest</button>
+                    <div className="dropdown-menu">
+                      <button className="dropdown-item" onClick={this.handleSortToOldChange}>From newest to oldest</button>
+                      <button className="dropdown-item" onClick={this.handleSortToNewestChange}>From oldest to newest</button>
                     </div>
                   </div>
                     <button className="btn btn-info" onClick={this.handleAllAndArchive}>

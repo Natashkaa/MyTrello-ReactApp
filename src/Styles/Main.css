@@ -3,7 +3,11 @@
         width: 20%;
         height: 100%
     }
-    .userIcon, .exitIcon{
+    .userIcon{
+        width: 100px;
+        height: 100px;
+    } 
+    .exitIcon{
         width: 50px;
         height: 50px;
     }
@@ -30,7 +34,11 @@
         height: 10%;
         display: flex;
     }
-    .userIcon, .exitIcon{
+    .userIcon{
+        width: 100px;
+        height: 100px;
+    } 
+    .exitIcon{
         width: 50px;
         height: 50px;
     }
@@ -52,7 +60,11 @@
         height: 100px;
         display: flex
     }
-    .userIcon, .exitIcon{
+    .userIcon{
+        width: 90px;
+        height: 90px;
+    } 
+    .exitIcon{
         width: 50px;
         height: 50px;
     }
@@ -123,7 +135,30 @@
     align-items: center;
     justify-content: center;
 }
-.userIcon, .exitIcon{
+.iconRow{
+    position: relative;
+}
+/* .formForFile{
+    position: absolute;
+    top: 40px;
+    display: flex;
+    align-items: center;
+    width: 100%
+} */
+.userIcon{
+    border-radius: 30%;
+    object-fit: cover;
+    object-position: top;
+} 
+.inputFile{
+    display: none;
+}
+.labelFotInputFile{
+    font-size: 10px;
+    text-decoration: underline;
+    width: 100%
+}
+.exitIcon{
     background-size: contain;
     background-repeat: no-repeat;
 }
@@ -228,7 +263,6 @@
 }
 .btn-active:hover{
     background-color: rgb(199, 199, 199);
-    
 }
 
 /*footer*/
